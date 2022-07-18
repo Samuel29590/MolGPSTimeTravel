@@ -12,8 +12,9 @@ TMGTimeTravelEvents >> restoreFrom: aMemento [
 ]
 
 { #category : #events }
-TMGTimeTravelEvents >> saveForTimeTravel: aStep [
+TMGTimeTravelEvents >> saveForTimeTravel [
 
+	
 ]
 
 { #category : #events }

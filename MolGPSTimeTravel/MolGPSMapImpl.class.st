@@ -1,21 +1,43 @@
 Class {
 	#name : #MolGPSMapImpl,
 	#superclass : #MolAbstractComponentImpl,
-	#traits : 'MolGPSMap + MolGPSDataEvents',
-	#classTraits : 'MolGPSMap classTrait + MolGPSDataEvents classTrait',
+	#traits : 'MolGPSMap + MolGPSDataEvents + TMGTimeTravelEvents',
+	#classTraits : 'MolGPSMap classTrait + MolGPSDataEvents classTrait + TMGTimeTravelEvents classTrait',
 	#category : #MolGPSTimeTravel
 }
 
 { #category : #'component life cycle' }
 MolGPSMapImpl >> componentActivate [
-	
+
 	self getMolGPSDataEventsSubscriber subscribe: self.
+	
+	self getTMGTimeTravelEventsSubscriber subscribe: self.
+]
+
+{ #category : #'component life cycle' }
+MolGPSMapImpl >> componentInitialize [
+
+	super componentInitialize.
+	
+	"Recording the creation of a component."
+	self getTMGTimeTravelServicesProvider creationOf: self
 ]
 
 { #category : #'component life cycle' }
 MolGPSMapImpl >> componentPassivate [
-	
+
 	self getMolGPSDataEventsSubscriber unsubscribe: self.
+	
+	self getTMGTimeTravelEventsSubscriber unsubscribe: self.
+]
+
+{ #category : #'component life cycle' }
+MolGPSMapImpl >> componentRemove [
+
+	super componentRemove.
+
+	"Recording the creation of a component."
+	self getTMGTimeTravelServicesProvider deletionOf: self
 ]
 
 { #category : #events }
@@ -51,6 +73,39 @@ MolGPSMapImpl >> getMolGPSDataServicesProvider [
 
 	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: MolGPSDataServices named: servicesSymbol.
 	^servicesProvider
+]
+
+{ #category : #'component accessing' }
+MolGPSMapImpl >> getTMGTimeTravelEventsSubscriber [
+	| eventsSymbol eventsSubscriber itf |
+	itf := TMGTimeTravelEvents.
+	eventsSymbol := self eventsSubscribers at: itf ifAbsent: [^MolNotFoundEventsSubscriber new interface: itf name: nil].
+	eventsSymbol isCollection
+	 	ifTrue: 
+			[eventsSubscriber := MolComponentManager default locatorServices 
+						searchEventsSubscriberFor: TMGTimeTravelEvents named: eventsSymbol ]. 
+	^eventsSubscriber
+]
+
+{ #category : #'component accessing' }
+MolGPSMapImpl >> getTMGTimeTravelServicesProvider [
+	| servicesSymbol servicesProvider itf |
+
+	itf := TMGTimeTravelServices.
+	servicesSymbol := self servicesProviders at: itf ifAbsent: [nil].
+	(servicesSymbol isNil or:[servicesSymbol isSymbol not]) ifTrue: [ ^ MolNotFoundServicesProvider new interface: itf name: nil ].
+
+	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TMGTimeTravelServices named: servicesSymbol.
+	^servicesProvider
+]
+
+{ #category : #events }
+MolGPSMapImpl >> saveForTimeTravel [
+
+	| memento |
+	memento := MGMapMemento new.
+
+	self getTMGTimeTravelServicesProvider save: (memento save: self)
 ]
 
 { #category : #'map updating' }

@@ -6,8 +6,15 @@ Trait {
 }
 
 { #category : #services }
-TMGTimeTravelServices >> creationOf: aComponentMemento at: aStep [
+TMGTimeTravelServices >> creationOf: aComponent [
 
+	
+]
+
+{ #category : #services }
+TMGTimeTravelServices >> deletionOf: aComponent [
+
+	
 ]
 
 { #category : #services }
@@ -23,15 +30,13 @@ TMGTimeTravelServices >> isRestoring [
 ]
 
 { #category : #services }
-TMGTimeTravelServices >> removeOf: aComponentMemento at: aStep [
+TMGTimeTravelServices >> save: aComponent [
+
+	
 ]
 
 { #category : #services }
-TMGTimeTravelServices >> save: aComponent at: aStep [
-]
-
-{ #category : #services }
-TMGTimeTravelServices >> saveTheSimulationAt: aStep [
+TMGTimeTravelServices >> saveTheSystem [
 
 	
 ]
