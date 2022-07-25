@@ -1,26 +1,26 @@
 Class {
-	#name : #MGDataMemento,
-	#superclass : #MGComponentMemento,
+	#name : #MolDataMemento,
+	#superclass : #MolComponentMemento,
 	#instVars : [
 		'accuracy'
 	],
-	#category : #MolGPSTimeTravel
+	#category : #MolTimeTravel
 }
 
 { #category : #accessing }
-MGDataMemento >> getAccuracy [
+MolDataMemento >> getAccuracy [
 
 	^ accuracy 
 ]
 
 { #category : #'undo - undo' }
-MGDataMemento >> redo [
+MolDataMemento >> redo [
 
 	self restoreValues.
 ]
 
 { #category : #actions }
-MGDataMemento >> save: aData [
+MolDataMemento >> save: aData [
 
 	componentClass := aData class.
 	componentName := aData componentName.
@@ -29,7 +29,7 @@ MGDataMemento >> save: aData [
 ]
 
 { #category : #'undo - undo' }
-MGDataMemento >> undo [
+MolDataMemento >> undo [
 
 	self restoreValues
 ]

@@ -1,24 +1,24 @@
 Class {
-	#name : #MGMapMemento,
-	#superclass : #MGComponentMemento,
-	#category : #MolGPSTimeTravel
+	#name : #MolMapMemento,
+	#superclass : #MolComponentMemento,
+	#category : #MolTimeTravel
 }
 
 { #category : #'undo - undo' }
-MGMapMemento >> redo [
+MolMapMemento >> redo [
 
 	self restoreValues.
 ]
 
 { #category : #actions }
-MGMapMemento >> save: aMap [
+MolMapMemento >> save: aMap [
 
 	componentClass := aMap class.
 	componentName := aMap componentName
 ]
 
 { #category : #'undo - undo' }
-MGMapMemento >> undo [
+MolMapMemento >> undo [
 
 	self restoreValues
 ]

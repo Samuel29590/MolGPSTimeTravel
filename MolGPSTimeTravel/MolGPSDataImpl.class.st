@@ -1,8 +1,8 @@
 Class {
 	#name : #MolGPSDataImpl,
 	#superclass : #MolAbstractComponentImpl,
-	#traits : 'MolGPSData + MolGPSDataServices + TMGTimeTravelEvents',
-	#classTraits : 'MolGPSData classTrait + MolGPSDataServices classTrait + TMGTimeTravelEvents classTrait',
+	#traits : 'MolGPSData + MolGPSDataServices + TimeTravelEvents',
+	#classTraits : 'MolGPSData classTrait + MolGPSDataServices classTrait + TimeTravelEvents classTrait',
 	#instVars : [
 		'accuracy',
 		'sendCurrentPositionThread'
@@ -27,53 +27,89 @@ MolGPSDataImpl >> componentActivate [
 
 	"Start a thread to simulate sending of the geo position each seconds and accuracy precision"
 
-	self getTMGTimeTravelEventsSubscriber subscribe: self.
+	"--------------------------Time Travel--------------------------"
+
+	"Subscription to the Time Travel event"
+
+	self getTimeTravelEventsSubscriber subscribe: self.
+	"---------------------------------------------------------------"
 
 	sendCurrentPositionThread := [ 
 	                             [ true ] whileTrue: [ 
 		                             (Delay forMilliseconds: 50) wait.
 
-		                             self getTMGTimeTravelServicesProvider
-			                             isRestoring ifFalse: [ 
-			                             self getMolGPSDataEventsNotifier 
-				                             currentPositionChanged:
-				                             self getRandomizedGPSPosition.
+		                           	"--------------------------Time Travel--------------------------"
+		                             (MolUtils
+			                              instanceOf: MolTimeTravel
+			                              named: #default)
+			                             ifNotNil: [ 
+				                             self getTimeTravelServicesProvider
+					                             isRestoring ifFalse: [ 
+											"---------------------------------------------------------------"
+					                             self getMolGPSDataEventsNotifier 
+						                             currentPositionChanged:
+						                             self getRandomizedGPSPosition.
 
-			                             self increaseAccuracy.
+					                             self increaseAccuracy.
 
-			                             "save the system for TimeTravel."
-			                             self getTMGTimeTravelServicesProvider
-				                             saveTheSystem ] ] ] forkAt:
+					                             "--------------------------Time Travel--------------------------"
+					                             "save the system for TimeTravel."
+					                             self getTimeTravelServicesProvider
+						                             saveTheApplication
+					                             "---------------------------------------------------------------" ] ]
+			                             ifNil: [ 
+				                             self getMolGPSDataEventsNotifier 
+					                             currentPositionChanged:
+					                             self getRandomizedGPSPosition.
+
+				                             self increaseAccuracy ] ] ] forkAt:
 		                             Processor userBackgroundPriority
 ]
 
 { #category : #'life cycle' }
 MolGPSDataImpl >> componentInitialize [
 
-	"Recording the creation of a component."
-
-	self getTMGTimeTravelServicesProvider creationOf: self.
-
+	"--------------------------Time Travel--------------------------"
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ "Connection to the TimeTravel service."
+		self forServices: TimeTravelServices useProvider: #default.
+		"Subscription to the Time Travel event"
+		self getTimeTravelEventsSubscriber subscribe: self.
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component notifies its creation" 
+			self getTimeTravelServicesProvider creationOf: self ] ].
+	"---------------------------------------------------------------"
+	
 	"Set starting accuracy"
-
-	self accuracy: 1000
+	self accuracy: 1000.
+	
+	"--------------------------Time Travel--------------------------"
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component saves its state." 
+			self saveForTimeTravel ] ].
+	"---------------------------------------------------------------"
 ]
 
 { #category : #'life cycle' }
 MolGPSDataImpl >> componentPassivate [
 
-	self getTMGTimeTravelEventsSubscriber unsubscribe: self.
-
 	sendCurrentPositionThread ifNotNil: [ :e | e terminate ].
-	sendCurrentPositionThread := nil
+	sendCurrentPositionThread := nil.
+	
+	"--------------------------Time Travel--------------------------"
+	"Unsubscribe from the Time Travel event"
+	self getTimeTravelEventsSubscriber unsubscribe: self
+	"---------------------------------------------------------------"
 ]
 
 { #category : #'life cycle' }
 MolGPSDataImpl >> componentRemove [
 
-	"Recording the deletion of a component."
-
-	self getTMGTimeTravelServicesProvider deletionOf: self
+	"--------------------------Time Travel--------------------------"
+	(MolUtils instanceOf: MolTimeTravel named: #default) ifNotNil: [ 
+		self getTimeTravelServicesProvider isRestoring ifFalse: [ "Component saves its state."
+			self saveForTimeTravel.
+			"Component notifies its deletion"
+			self getTimeTravelServicesProvider deletionOf: self ] ].
+	"---------------------------------------------------------------"
 ]
 
 { #category : #services }
@@ -97,26 +133,26 @@ MolGPSDataImpl >> getRandomizedGPSPosition [
 ]
 
 { #category : #'component accessing' }
-MolGPSDataImpl >> getTMGTimeTravelEventsSubscriber [
+MolGPSDataImpl >> getTimeTravelEventsSubscriber [
 	| eventsSymbol eventsSubscriber itf |
-	itf := TMGTimeTravelEvents.
+	itf := TimeTravelEvents.
 	eventsSymbol := self eventsSubscribers at: itf ifAbsent: [^MolNotFoundEventsSubscriber new interface: itf name: nil].
 	eventsSymbol isCollection
 	 	ifTrue: 
 			[eventsSubscriber := MolComponentManager default locatorServices 
-						searchEventsSubscriberFor: TMGTimeTravelEvents named: eventsSymbol ]. 
+						searchEventsSubscriberFor: TimeTravelEvents named: eventsSymbol ]. 
 	^eventsSubscriber
 ]
 
 { #category : #'component accessing' }
-MolGPSDataImpl >> getTMGTimeTravelServicesProvider [
+MolGPSDataImpl >> getTimeTravelServicesProvider [
 	| servicesSymbol servicesProvider itf |
 
-	itf := TMGTimeTravelServices.
+	itf := TimeTravelServices.
 	servicesSymbol := self servicesProviders at: itf ifAbsent: [nil].
 	(servicesSymbol isNil or:[servicesSymbol isSymbol not]) ifTrue: [ ^ MolNotFoundServicesProvider new interface: itf name: nil ].
 
-	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TMGTimeTravelServices named: servicesSymbol.
+	servicesProvider := MolComponentManager default locatorServices searchServicesProviderFor: TimeTravelServices named: servicesSymbol.
 	^servicesProvider
 ]
 
@@ -134,7 +170,7 @@ MolGPSDataImpl >> increaseAccuracy [
 { #category : #events }
 MolGPSDataImpl >> restoreFrom: aMemento [
 
-		"Restore variables thanks to a memento."
+	"Restore variables thanks to a memento."
 
 	accuracy  := aMemento getAccuracy.
 ]
@@ -143,7 +179,6 @@ MolGPSDataImpl >> restoreFrom: aMemento [
 MolGPSDataImpl >> saveForTimeTravel [
 
 	| memento |
-	memento := MGDataMemento new.
-
-	self getTMGTimeTravelServicesProvider save: (memento save: self)
+	memento := MolDataMemento new.
+	self getTimeTravelServicesProvider save: (memento save: self)
 ]

@@ -12,12 +12,12 @@ Trait {
 MolGPSMap classSide >> consumedComponentEvents [
 
 	<componentContract>
-	^ { MolGPSDataEvents . TMGTimeTravelEvents }
+	^ { MolGPSDataEvents . TimeTravelEvents }
 ]
 
 { #category : #'accessing - services' }
 MolGPSMap classSide >> usedComponentServices [
 
 	<componentContract>
-	^ { MolGPSDataServices . TMGTimeTravelServices }
+	^ { MolGPSDataServices . TimeTravelServices }
 ]

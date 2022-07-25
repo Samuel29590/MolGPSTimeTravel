@@ -1,24 +1,24 @@
 Class {
-	#name : #MGHardwareMemento,
-	#superclass : #MGComponentMemento,
-	#category : #MolGPSTimeTravel
+	#name : #MolHardwareMemento,
+	#superclass : #MolComponentMemento,
+	#category : #MolTimeTravel
 }
 
 { #category : #'undo - undo' }
-MGHardwareMemento >> redo [
+MolHardwareMemento >> redo [
 
 	self restoreValues.
 ]
 
 { #category : #actions }
-MGHardwareMemento >> save: anHardware [
+MolHardwareMemento >> save: anHardware [
 
 	componentClass := anHardware class.
 	componentName := anHardware componentName.
 ]
 
 { #category : #'undo - undo' }
-MGHardwareMemento >> undo [
+MolHardwareMemento >> undo [
 
 	self restoreValues
 ]

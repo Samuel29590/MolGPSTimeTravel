@@ -1,42 +1,42 @@
 Class {
-	#name : #MGComponentMemento,
+	#name : #MolComponentMemento,
 	#superclass : #Object,
 	#instVars : [
 		'componentClass',
 		'componentName'
 	],
-	#category : #MolGPSTimeTravel
+	#category : #MolTimeTravel
 }
 
 { #category : #accessing }
-MGComponentMemento >> componentClass [
+MolComponentMemento >> componentClass [
 
 	^ componentClass
 ]
 
 { #category : #accessing }
-MGComponentMemento >> componentName [
+MolComponentMemento >> componentName [
 
 	^ componentName
 ]
 
 { #category : #'undo - undo' }
-MGComponentMemento >> redo [
+MolComponentMemento >> redo [
 ]
 
 { #category : #accessing }
-MGComponentMemento >> restoreValues [
+MolComponentMemento >> restoreValues [
  | instance |
 	instance := (MolUtils instanceOf: componentClass named: componentName) .
 	instance ifNotNil: [ instance restoreFrom: self. ]
 ]
 
 { #category : #actions }
-MGComponentMemento >> save: aComponent [
+MolComponentMemento >> save: aComponent [
 ]
 
 { #category : #'undo - undo' }
-MGComponentMemento >> undo [
+MolComponentMemento >> undo [
 
 	
 ]

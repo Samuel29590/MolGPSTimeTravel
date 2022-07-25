@@ -30,8 +30,25 @@ MolGPSExampleLauncher class >> start [
 		 'This example displays results in a Transcript, clic OK to open a Transcript.'
 		 title: 'Molecule - GPS Example') ifTrue: [ Transcript open ].
 
+	"Start GPSDataImpl component (a Component with MolGPSData Type)"
+	MolGPSDataImpl start.
+
+	"Start GPSMapImpl component (a Component with MolGPSMap Type)"
+	MolGPSMapImpl start
+]
+
+{ #category : #scripts }
+MolGPSExampleLauncher class >> startWithTimeTravel [
+
+	<script: 'self startWithTimeTravel'>
+	(UITheme current
+		 proceedIn: Morph new
+		 text:
+		 'This example displays results in a Transcript, clic OK to open a Transcript.'
+		 title: 'Molecule - GPS Example') ifTrue: [ Transcript open ].
+
 	"Start the TimeTravel component"
-	MGTimeTravel start.
+	MolTimeTravel start.
 
 	"Start GPSDataImpl component (a Component with MolGPSData Type)"
 	MolGPSDataImpl start.
